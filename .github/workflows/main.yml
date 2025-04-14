@@ -10,8 +10,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
-      with:
-        persist-credentials: false
 
     - name: Télécharger l'image de vigilance
       run: |
@@ -21,10 +19,16 @@ jobs:
     - name: Vérifier que l'image a bien été téléchargée
       run: ls -l public
 
+    - name: Forcer l’URL Git en HTTPS
+      run: git config --global url."https://".insteadOf git://
+
+    - name: Vérifier l'origine Git
+      run: git remote -v
+
     - name: Commit et push si modification
       run: |
-        git config user.name "GitHub Actions"
-        git config user.email "actions@github.com"
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
         git add public/vigilance.png
 
         if git diff --cached --quiet; then
@@ -32,5 +36,5 @@ jobs:
         else
           git commit -m "Mise à jour automatique de la carte de vigilance"
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git push origin HEAD:main
+          git push origin HEAD:main || echo "Git push failed with code $?"
         fi
