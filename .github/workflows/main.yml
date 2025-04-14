@@ -1,44 +1,12 @@
-name: Download Vigilance Image
+- name: Commit et push si modification
+  run: |
+    git config user.name "GitHub Actions"
+    git config user.email "actions@github.com"
+    git add public/vigilance.png
 
-on:
-  schedule:
-    - cron: '0 * * * *'
-  workflow_dispatch:
-
-jobs:
-  download:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Créer dossier public si nécessaire
-        run: mkdir -p public
-
-      - name: Télécharger la carte de vigilance
-        run: |
-          curl -L -o public/vigilance.png "https://rpcache-aa.meteofrance.com/internet2018client/2.0/warning/thumbnail?domain=VIGI974&warning_type=vigilance4colors"
-
-      - name: Afficher l'état Git pour debug
-        run: |
-          git status
-          git diff
-
-      - name: Commit et push si modification
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add public/vigilance.png
-
-          # Debug avant commit
-          echo "Fichiers indexés pour commit :"
-          git diff --cached
-
-          # Si des changements sont présents
-          if git diff --cached --quiet; then
-            echo "Aucun changement à committer"
-          else
-            git commit -m "Mise à jour automatique de la carte de vigilance"
-            git push
-          fi
+    if git diff --cached --quiet; then
+      echo "Aucun changement à committer"
+    else
+      git commit -m "Mise à jour automatique de la carte de vigilance"
+      git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+    fi
