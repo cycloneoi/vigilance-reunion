@@ -2,19 +2,21 @@ name: Download Vigilance Image
 
 on:
   schedule:
-    - cron: '0 * * * *' # Toutes les heures
-  workflow_dispatch: # Permet de le lancer manuellement
+    - cron: '0 * * * *' # toutes les heures
+  workflow_dispatch: # permet de lancer manuellement
 
 jobs:
   download:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout du dépôt
+      - name: Checkout repo
         uses: actions/checkout@v3
+
+      - name: Créer le dossier public s'il n'existe pas
+        run: mkdir -p public
 
       - name: Télécharger la carte de vigilance
         run: |
-          mkdir -p public
           curl -L -o public/vigilance.png "https://rpcache-aa.meteofrance.com/internet2018client/2.0/warning/thumbnail?domain=VIGI974&warning_type=vigilance4colors"
 
       - name: Commit et push si modification
@@ -22,5 +24,4 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add public/vigilance.png
-          git commit -m "Mise à jour automatique de la carte de vigilance" || echo "Pas de changements"
-          git push
+          git diff --cached --quiet && echo "Pas de changement" || (git commit -m "Mise à jour automatique de la carte de vigilance" && git push)
