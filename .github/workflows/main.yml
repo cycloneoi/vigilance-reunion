@@ -2,19 +2,20 @@ name: Download Vigilance Image
 
 on:
   schedule:
-    - cron: '0 * * * *' # toutes les heures
-  workflow_dispatch: # permet de lancer manuellement
+    - cron: '0 * * * *' # Toutes les heures
+  workflow_dispatch: # Permet de le lancer manuellement
 
 jobs:
   download:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout du dépôt
         uses: actions/checkout@v3
 
       - name: Télécharger la carte de vigilance
         run: |
-          curl -o public/vigilance.png https://vigilance.meteofrance.re/reunion/vigilance/images/vigilance.png
+          mkdir -p public
+          curl -L -o public/vigilance.png "https://rpcache-aa.meteofrance.com/internet2018client/2.0/warning/thumbnail?domain=VIGI974&warning_type=vigilance4colors"
 
       - name: Commit et push si modification
         run: |
