@@ -10,6 +10,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+      with:
+        persist-credentials: false
 
     - name: Télécharger l'image de vigilance
       run: |
@@ -29,5 +31,6 @@ jobs:
           echo "Aucun changement à committer"
         else
           git commit -m "Mise à jour automatique de la carte de vigilance"
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git push origin HEAD:main
         fi
