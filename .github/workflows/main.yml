@@ -1,12 +1,29 @@
-- name: Commit et push si modification
-  run: |
-    git config user.name "GitHub Actions"
-    git config user.email "actions@github.com"
-    git add public/vigilance.png
+name: Download Vigilance Image
 
-    if git diff --cached --quiet; then
-      echo "Aucun changement à committer"
-    else
-      git commit -m "Mise à jour automatique de la carte de vigilance"
-      git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-    fi
+on:
+  workflow_dispatch:
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Télécharger l'image de vigilance
+      run: |
+        curl -o public/vigilance.png https://vigilance.meteofrance.fr/data/R97/00.png
+
+    - name: Commit et push si modification
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+        git add public/vigilance.png
+
+        if git diff --cached --quiet; then
+          echo "Aucun changement à committer"
+        else
+          git commit -m "Mise à jour automatique de la carte de vigilance"
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+        fi
