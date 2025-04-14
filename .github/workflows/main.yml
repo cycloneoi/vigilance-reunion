@@ -13,7 +13,11 @@ jobs:
 
     - name: Télécharger l'image de vigilance
       run: |
+        mkdir -p public
         curl -o public/vigilance.png https://vigilance.meteofrance.fr/data/R97/00.png
+
+    - name: Vérifier que l'image a bien été téléchargée
+      run: ls -l public
 
     - name: Commit et push si modification
       run: |
