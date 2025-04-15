@@ -1,36 +1,32 @@
-name: update_vigilance
+name: Mise à jour Vigilance Réunion
 
 on:
-  workflow_dispatch:
   schedule:
-    - cron: '0 4 * * *'  # Tous les jours à 4h UTC (8h à La Réunion)
+    - cron: '0 6 * * *'  # Tous les jours à 6h UTC (10h à La Réunion)
+  workflow_dispatch:
 
 jobs:
-  build:
+  update_vigilance:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Cloner le dépôt
+      - name: Checkout du dépôt
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Installer Poppler
-        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+      - name: Installer Poppler (nécessaire pour convertir PDF → image)
+        run: sudo apt-get install -y poppler-utils
 
       - name: Installer les dépendances Python
         run: pip install -r requirements.txt
 
-      - name: Exécuter le script Python
+      - name: Lancer le script Python de mise à jour
         run: python public/update_vigilance.py
 
       - name: Commit si fichier modifié
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
-          git add public/
-          if ! git diff --quiet --cached; then
-            git commit -m "Mise à jour image vigilance"
-            git push
-          else
-            echo "Aucun changement à pousser."
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          git add public/vigilance.jpg
+          git diff --cached --quiet || (git commit -m "Mise à jour vigilance automatique" && git push)
