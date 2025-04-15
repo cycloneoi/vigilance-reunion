@@ -30,3 +30,15 @@ jobs:
           git config --global user.email 'github-actions@github.com'
           git add public/vigilance.jpg
           git diff --cached --quiet || (git commit -m "Mise à jour vigilance automatique" && git push)
+- name: Commit si fichier modifié
+  run: |
+    git config --global user.name 'github-actions'
+    git config --global user.email 'github-actions@github.com'
+
+    if [ -f public/vigilance.jpg ]; then
+      git add public/vigilance.jpg
+      git diff --cached --quiet || git commit -m "Mise à jour vigilance automatique"
+      git push
+    else
+      echo "Fichier vigilance.jpg non trouvé. Aucun commit effectué."
+    fi
