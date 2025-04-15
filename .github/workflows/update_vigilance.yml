@@ -31,7 +31,7 @@ jobs:
             exit 1
           fi
 
-      - name: Commit si fichier modifié
+            - name: Commit si fichier modifié
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -40,7 +40,11 @@ jobs:
 
           if [ -f public/vigilance.jpg ]; then
             git add public/vigilance.jpg
-            git diff --cached --quiet || git commit -m "Mise à jour vigilance automatique"
-            git push https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git
+            if ! git diff --cached --quiet; then
+              git commit -m "Mise à jour vigilance automatique"
+              git push https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git
+            else
+              echo "✅ Aucune modification à committer"
+            fi
           else
-            echo "Fichier vigilance.jpg non trouvé. Aucun commit effectué."
+            echo "❌ Fichier vigilance.jpg non trouvé. Aucun commit effectué."
