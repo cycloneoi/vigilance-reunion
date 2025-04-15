@@ -20,7 +20,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Lancer le script Python de mise à jour
-        run: python script.py
+        run: python public/update_vigilance.py
 
       - name: Vérifier si l’image est bien créée
         run: |
