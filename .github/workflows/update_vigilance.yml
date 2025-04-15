@@ -1,9 +1,9 @@
 name: Mise à jour Vigilance Réunion
 
 on:
-  schedule:
-    - cron: '0 6 * * *'  # Tous les jours à 6h UTC (10h à La Réunion)
   workflow_dispatch:
+  schedule:
+    - cron: '0 5 * * *'  # tous les jours à 5h UTC (9h Réunion)
 
 jobs:
   update_vigilance:
@@ -12,8 +12,6 @@ jobs:
     steps:
       - name: Checkout du dépôt
         uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Installer Poppler (nécessaire pour convertir PDF → image)
         run: sudo apt-get install -y poppler-utils
@@ -22,23 +20,27 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Lancer le script Python de mise à jour
-        run: python public/update_vigilance.py
+        run: python script.py
+
+      - name: Vérifier si l’image est bien créée
+        run: |
+          if [ -f public/vigilance.jpg ]; then
+            echo "✅ Fichier image généré"
+          else
+            echo "❌ Le fichier vigilance.jpg n’a pas été trouvé."
+            exit 1
+          fi
 
       - name: Commit si fichier modifié
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
-          git add public/vigilance.jpg
-          git diff --cached --quiet || (git commit -m "Mise à jour vigilance automatique" && git push)
-- name: Commit si fichier modifié
-  run: |
-    git config --global user.name 'github-actions'
-    git config --global user.email 'github-actions@github.com'
 
-    if [ -f public/vigilance.jpg ]; then
-      git add public/vigilance.jpg
-      git diff --cached --quiet || git commit -m "Mise à jour vigilance automatique"
-      git push
-    else
-      echo "Fichier vigilance.jpg non trouvé. Aucun commit effectué."
-    fi
+          if [ -f public/vigilance.jpg ]; then
+            git add public/vigilance.jpg
+            git diff --cached --quiet || git commit -m "Mise à jour vigilance automatique"
+            git push https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git
+          else
+            echo "Fichier vigilance.jpg non trouvé. Aucun commit effectué."
