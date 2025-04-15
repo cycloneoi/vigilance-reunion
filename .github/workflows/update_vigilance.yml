@@ -31,7 +31,7 @@ jobs:
             exit 1
           fi
 
-            - name: Commit si fichier modifié
+      - name: Commit si fichier modifié
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
