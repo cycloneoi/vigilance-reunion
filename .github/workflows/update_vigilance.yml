@@ -1,0 +1,31 @@
+name: Mise à jour vigilance
+
+on:
+  schedule:
+    - cron: '0 5 * * *'  # Tous les jours à 5h du matin UTC (9h La Réunion)
+  workflow_dispatch:      # Permet de lancer manuellement
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupération du dépôt
+        uses: actions/checkout@v3
+
+      - name: Installer les dépendances
+        run: |
+          sudo apt update
+          sudo apt install -y poppler-utils
+          pip install pdf2image requests
+
+      - name: Exécuter le script Python
+        run: python public/update_vigilance.py
+
+      - name: Valider les changements (s’il y a eu une mise à jour)
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add public/vigilance.png
+          git commit -m "Mise à jour vigilance automatique" || echo "Pas de modification"
+          git push
