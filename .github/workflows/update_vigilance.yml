@@ -1,40 +1,36 @@
-name: Mise à jour vigilance
+name: update_vigilance
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 4 * * *' # tous les jours à 4h UTC (8h La Réunion)
+    - cron: '0 4 * * *'  # Tous les jours à 4h UTC (8h à La Réunion)
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Cloner le dépôt
-      uses: actions/checkout@v3
-      with:
-        persist-credentials: false
+      - name: Cloner le dépôt
+        uses: actions/checkout@v3
 
-    - name: Configurer Git
-      run: |
-        git config user.name "github-actions[bot]"
-        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Installer Poppler
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
 
-    - name: Installer les dépendances
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y poppler-utils
-        pip install requests
+      - name: Installer les dépendances Python
+        run: pip install -r requirements.txt
 
-    - name: Exécuter le script Python
-      run: python public/update_vigilance.py
+      - name: Exécuter le script Python
+        run: python public/update_vigilance.py
 
-    - name: Ajouter et commit si changement
-      run: |
-        git add public/vigilance.png
-        git diff --cached --quiet || git commit -m "Mise à jour automatique de l'image de vigilance"
-
-    - name: Pousser les changements
-      uses: ad-m/github-push-action@v0.6.0
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit si fichier modifié
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git add public/
+          if ! git diff --quiet --cached; then
+            git commit -m "Mise à jour image vigilance"
+            git push
+          else
+            echo "Aucun changement à pousser."
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
