@@ -13,8 +13,11 @@ jobs:
       - name: Checkout du dépôt
         uses: actions/checkout@v3
 
-      - name: Installer Poppler (nécessaire pour convertir PDF → image)
-        run: sudo apt-get install -y poppler-utils
+      - name: Mettre à jour apt & installer Poppler
+    run: |
+        sudo apt-get update
+        sudo apt-get install -y poppler-utils
+
 
       - name: Installer les dépendances Python
         run: pip install -r requirements.txt
